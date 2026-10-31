@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalkulator IPK</title>
+<script>try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t);}catch(e){}</script>
+<style>
+:root{--paper:#F5F5F2;--ink:#111;--muted:#6E6E69;--line:#D4D4CE;--accent:#E30613;color-scheme:light}
+:root[data-tema="dark"]{--paper:#0F0F0E;--ink:#F2F2EE;--muted:#98988F;--line:#2D2D2A;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-tema="light"]){--paper:#0F0F0E;--ink:#F2F2EE;--muted:#98988F;--line:#2D2D2A;color-scheme:dark}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font:17px/1.6 "Helvetica Neue",Helvetica,Arial,sans-serif;padding:clamp(20px,4vw,56px);max-width:860px;margin:0 auto}
+a{color:inherit}h1{font-size:clamp(2.6rem,9vw,6rem);line-height:.9;letter-spacing:-.05em;margin:12px 0 28px;padding-bottom:20px;border-bottom:3px solid var(--ink)}
+.label{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.baris{display:grid;grid-template-columns:3fr 1fr 1fr auto;gap:12px;margin-bottom:12px}
+input,select,button{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1.5px solid var(--ink);padding:8px 2px;border-radius:0;min-width:0}
+select option{color:#111}
+button{cursor:pointer;border:1.5px solid var(--ink);border-radius:99px;padding:6px 18px}
+button:hover{background:var(--ink);color:var(--paper)}
+button.hapus{border-color:var(--line);color:var(--muted)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.aksi{display:flex;gap:12px;margin:20px 0 36px}
+.hasil{display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:3px solid var(--ink);padding-top:20px}
+.hasil strong{display:block;font-size:clamp(3rem,10vw,6rem);line-height:1;letter-spacing:-.05em}
+.hasil strong.merah{color:var(--accent)}
+small{display:block;margin-top:32px;color:var(--muted)}
+@media(max-width:560px){.baris{grid-template-columns:1fr 70px 70px auto}}
+</style>
+</head>
+<body>
+<a class="label" href="../index.html#program">← Kembali ke portofolio</a>
+<h1>Kalkulator IPK</h1>
+<div class="baris label"><span>Mata kuliah</span><span>SKS</span><span>Nilai</span><span></span></div>
+<div id="daftar"></div>
+<div class="aksi"><button type="button" id="tambah">+ Tambah mata kuliah</button></div>
+<div class="hasil" aria-live="polite">
+  <div><span class="label">Total SKS</span><strong id="sks">0</strong></div>
+  <div><span class="label">IPS / IPK</span><strong class="merah" id="ipk">0.00</strong></div>
+</div>
+<small>Skala nilai (bisa diubah di objek BOBOT pada kode): A=4, B+=3,5, B=3, C+=2,5, C=2, D=1, E=0.</small>
+<script>
+var BOBOT={'A':4,'B+':3.5,'B':3,'C+':2.5,'C':2,'D':1,'E':0};
+var daftar=document.getElementById('daftar');
+function baris(n,s,g){
+  var d=document.createElement('div');d.className='baris';
+  var a=document.createElement('input');a.placeholder='Nama mata kuliah';a.value=n||'';a.setAttribute('aria-label','Mata kuliah');
+  var b=document.createElement('input');b.type='number';b.min='0';b.max='6';b.value=s||3;b.setAttribute('aria-label','SKS');
+  var c=document.createElement('select');c.setAttribute('aria-label','Nilai');
+  Object.keys(BOBOT).forEach(function(k){var o=document.createElement('option');o.textContent=k;if(k===(g||'A'))o.selected=true;c.appendChild(o);});
+  var x=document.createElement('button');x.type='button';x.className='hapus';x.textContent='Hapus';x.setAttribute('aria-label','Hapus baris');
+  x.onclick=function(){d.remove();hitung();};
+  [a,b,c].forEach(function(e){e.addEventListener('input',hitung);});
+  d.append(a,b,c,x);daftar.appendChild(d);
+}
+function hitung(){
+  var sks=0,poin=0;
+  daftar.querySelectorAll('.baris').forEach(function(r){
+    var s=parseFloat(r.children[1].value)||0;
+    sks+=s;poin+=s*BOBOT[r.children[2].value];
+  });
+  document.getElementById('sks').textContent=sks;
+  document.getElementById('ipk').textContent=sks?(poin/sks).toFixed(2):'0.00';
+}
+document.getElementById('tambah').onclick=function(){baris();hitung();};
+baris('Algoritma dan Pemrograman',3,'A');baris('Basis Data',3,'B+');baris('Matematika Diskrit',2,'B');hitung();
+</script>
+</body>
+</html>
